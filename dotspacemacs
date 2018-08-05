@@ -40,21 +40,19 @@ values."
      auto-completion
      better-defaults
      emacs-lisp
-     cscope
-     gtags
-     ;; git
-     javascript
+     git
      markdown
      org
-     (org :variables
-          org-enable-github-support t
-          org-projectile-file "TODOs.org")
      c-c++
-     (c-c++ :variables c-c++-enable-clang-support t)
+     (c-c++ :variables
+            c-c++-enable-clang-support t)
+     cscope
+     gtags
+     (gtags :variables
+            gtags-enable-by-default nil)
      shell
      (shell :variables
-            shell-default-position 'right
-            shell-default-shell 'term)
+            shell-default-position 'left)
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
@@ -126,8 +124,8 @@ values."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'."
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists '((recents . 10)
-                                (projects . 5))
+   dotspacemacs-startup-lists '((recents . 15)
+                                (projects . 7))
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
    ;; Default major mode of the scratch buffer (default `text-mode')
@@ -135,7 +133,13 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(atom-one-dark
+   dotspacemacs-themes '(sanityinc-tomorrow-eighties
+                         moe-dark
+                         gruvbox
+                         zenburn
+                         solarized-dark
+                         material
+                         material-light
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -143,7 +147,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Operator Mono Light"
-                               :size 35
+                               :size 30
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -255,7 +259,7 @@ values."
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
-   dotspacemacs-smooth-scrolling nil
+   dotspacemacs-smooth-scrolling t
    ;; Control line numbers activation.
    ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
    ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
@@ -309,7 +313,7 @@ It is called immediately after `dotspacemacs/init', before layer configuration
 executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
-`dotspacemacs/user-config first."
+`dotspacemacs/user-config' first."
   )
 
 (defun dotspacemacs/user-config ()
@@ -319,13 +323,7 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  ;; (global-set-key "\C-h" 'delete-backward-char)
-  ;; overrides mark-whole-buffer
-  ;; (global-set-key "\C-xh" 'help-command)
 
-  ;; c+j auto-indent
-  ;; (global-set-key "\C-j" 'newline-and-indent)
-  ;; (global-set-key (kbd "RET") 'newline)
   (pixel-scroll-mode t)
   ;; scroll one line at a time (less "jumpy" than defaults)
   (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
@@ -334,51 +332,66 @@ you should place your code here."
 
   (mouse-avoidance-mode 'animate)
 
-  ;;(setq evil-default-cursor (quote (t "#000075"))
-  ;;      evil-visual-state-cursor '("#000088" bar)
-  ;;      evil-normal-state-cursor '("#000075" bar)
-  ;;      evil-insert-state-cursor '("#e2e222" bar)
-  ;;      )
-
-  ;; (mouse-wheel-mode -1)
   ;; wrap line by default
   (global-visual-line-mode 1)
 
   (setq org-todo-keywords
         (quote ((sequence
-                 "TODO(t)" "RUNNING(n)" "|" "DONE(d)" "CANCELLED(c)"))))
+                 "TODO(t)" "RUNNING(r)" "|" "DONE(d)" "CANCELED(c)"))))
   (setq org-use-speed-commands t)
-  ;; "⚫" "⚪" "◾" "◽" "⬥" "⬦" "▴" "▵" "✦" "✧"
   (setq org-bullets-bullet-list '("⚫" "⚪" "◾" "◽" "⬥" "⬦" "✦" "✧" "▴" "▵"))
+  ;;(add-hook 'org-mode-hook
+  ;;          (lambda ()
+  ;;            (push '("[ ]" . "☐") prettify-symbols-alist)
+  ;;            (push '("[X]" . "☑" ) prettify-symbols-alist)
+  ;;            (push '("[-]" . "☐" ) prettify-symbols-alist)
+  ;;            (prettify-symbols-mode)
+  ;;            ))
+  (setq org-hide-emphasis-markers t)
+  (setq org-hide-leading-stars t)
+  (setq org-src-fontify-natively t)
+  (setq org-edit-src-content-indentation 0
+        org-src-tab-acts-natively t
+        org-src-fontify-natively t
+        org-confirm-babel-evaluate nil
+        org-support-shift-select 'always)
+  (add-hook 'org-mode-hook 'org-indent-mode)
+  ;;
+  (setq c-default-style "linux"
+        c-basic-offset 2)
+  (c-set-offset 'case-label '+)
+  ;;(c-set-offset 'cpp-define-intro '-)
+  (c-set-offset 'inextern-lang '-)
+  (c-set-offset 'func-decl-cont '0)
+  ;;
+  (spacemacs/set-leader-keys "gg" 'dumb-jump-go)
+  (setq-default fill-column 78)
 
-  ;;(with-eval-after-load 'org-agenda
-  ;;  (require 'org-projectile)
-  ;;  (push (org-projectile:todo-files) org-agenda-files))
-
-  ;; open shell at right
-  (defun db/shell-pop-right-side ()
-    (spacemacs/default-pop-shell)
-    (enlarge-window-horizontally (- 100 (window-width)))
-    )
-  (spacemacs/set-leader-keys "'" (lambda ()
-                                   (interactive)
-                                   (db/shell-pop-right-side)))
+  (require 'whitespace)
+  (setq whitespace-line-column 78) ;; limit line length
+  (setq whitespace-style '(face lines-tail))
+  (add-hook 'prog-mode-hook 'whitespace-mode)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (ox-gfm helm-gtags ggtags helm-cscope xcscope web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help insert-shebang fish-mode company-shell disaster company-c-headers cmake-mode clang-format unfill mwim helm-company helm-c-yasnippet fuzzy company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot atom-one-dark-theme smeargle orgit magit-gitflow helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub with-editor mmm-mode markdown-toc markdown-mode gh-md ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line))))
+    (color-theme-sanityinc-tomorrow zenburn-theme yasnippet-snippets xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org symon string-inflection spaceline-all-the-icons solarized-theme smeargle shell-pop restart-emacs rainbow-delimiters popwin persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file neotree nameless mwim multi-term move-text moe-theme mmm-mode material-theme markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-cscope helm-company helm-c-yasnippet helm-ag gruvbox-theme google-translate google-c-style golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode disaster diminish define-word counsel-projectile company-statistics company-rtags company-c-headers column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-complete auto-compile aggressive-indent ace-window ace-link ace-jump-helm-line))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:foreground "#ABB2BF" :background "#282C34")))))
+ )
+)

@@ -36,6 +36,10 @@
       A: zz/z., zb, zt
   12. Q: jump and goto line
       A: goto line: M-g g; goback: ''
+  13. Q: org checkbox correctness mark, not error mark ?
+      A: see dotspacemacs config file
+  14. Q: helm-gtags find ?
+      A: use dumb-jump-go instead of spacemacs/jump-to-definition which binds ',gg' keys.
 ## org mode
   1. TODO
   2. Agenda
