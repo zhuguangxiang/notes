@@ -124,8 +124,8 @@ values."
    ;; `recents' `bookmarks' `projects' `agenda' `todos'."
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
-   dotspacemacs-startup-lists '((recents . 15)
-                                (projects . 7))
+   dotspacemacs-startup-lists '((recents . 20)
+                                (projects . 9))
    ;; True if the home buffer should respond to resize events.
    dotspacemacs-startup-buffer-responsive t
    ;; Default major mode of the scratch buffer (default `text-mode')
@@ -135,8 +135,8 @@ values."
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(sanityinc-tomorrow-eighties
                          moe-dark
-                         gruvbox
                          zenburn
+                         gruvbox
                          solarized-dark
                          material
                          material-light
@@ -147,7 +147,7 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Operator Mono Light"
-                               :size 30
+                               :size 28  ;; default size 35
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -360,7 +360,7 @@ you should place your code here."
   (setq c-default-style "linux"
         c-basic-offset 2)
   (c-set-offset 'case-label '+)
-  ;;(c-set-offset 'cpp-define-intro '-)
+  ;; (c-set-offset 'cpp-define-intro '0)
   (c-set-offset 'inextern-lang '-)
   (c-set-offset 'func-decl-cont '0)
   ;;
@@ -371,6 +371,8 @@ you should place your code here."
   (setq whitespace-line-column 78) ;; limit line length
   (setq whitespace-style '(face lines-tail))
   (add-hook 'prog-mode-hook 'whitespace-mode)
+
+  (setq linum-format "%4d")
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
