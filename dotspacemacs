@@ -50,9 +50,12 @@ values."
      gtags
      (gtags :variables
             gtags-enable-by-default nil)
+     html
+     octave
      shell
      (shell :variables
-            shell-default-position 'left)
+            shell-default-shell 'eshell
+            shell-default-position 'bottom)
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
@@ -65,7 +68,7 @@ values."
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(smartparens)
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
    ;; `used-only' installs only explicitly used packages and uninstall any
@@ -133,21 +136,24 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(sanityinc-tomorrow-eighties
-                         moe-dark
-                         zenburn
-                         gruvbox
-                         solarized-dark
-                         material
-                         material-light
+   dotspacemacs-themes '(atom-one-dark
                          spacemacs-dark
-                         spacemacs-light)
+                         spacemacs-light
+                         ;;zenburn
+                         ;;noctilux
+                         ;;sanityinc-tomorrow-eighties
+                         ;;moe-dark
+                         ;;gruvbox
+                         ;;solarized-dark
+                         ;;material
+                         ;;material-light
+                         )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Operator Mono Light"
-                               :size 28  ;; default size 35
+                               :size 27 ;; default size 35
                                :weight normal
                                :width normal
                                :powerline-scale 1.0)
@@ -273,7 +279,9 @@ values."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers t
+   dotspacemacs-line-numbers '(:relative t
+                               :enabled-for-modes
+                               prog-mode)
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -314,6 +322,10 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+  ;;(setq initial-frame-alist '((top . 30) (left . 700)
+  ;;                            (width . 212) (height . 81)))
+  (setq initial-frame-alist '((top . 280) (left . 250)
+                              (width . 270) (height . 60)))
   )
 
 (defun dotspacemacs/user-config ()
@@ -323,10 +335,10 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-
-  (pixel-scroll-mode t)
+  ;;(setq-default line-spacing 0.1)
+  ;;(pixel-scroll-mode t)
   ;; scroll one line at a time (less "jumpy" than defaults)
-  (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
+  (setq mouse-wheel-scroll-amount '(5 ((shift) . 1))) ;; two lines at a time
   (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse)
 
@@ -356,6 +368,17 @@ you should place your code here."
         org-confirm-babel-evaluate nil
         org-support-shift-select 'always)
   (add-hook 'org-mode-hook 'org-indent-mode)
+  (add-hook 'org-mode-hook (lambda ()
+                             (set-face-attribute 'org-level-1 nil
+                                                 :height 1.0 :bold nil)
+                             (set-face-attribute 'org-level-2 nil
+                                                 :height 1.0 :bold nil)
+                             (set-face-attribute 'org-level-3 nil
+                                                 :height 1.0 :bold nil)
+                             (set-face-attribute 'org-level-4 nil
+                                                 :height 1.0 :bold nil)
+                             (set-face-attribute 'org-level-5 nil
+                                                 :height 1.0 :bold nil)))
   ;;
   (setq c-default-style "linux"
         c-basic-offset 2)
@@ -365,14 +388,26 @@ you should place your code here."
   (c-set-offset 'func-decl-cont '0)
   ;;
   (spacemacs/set-leader-keys "gg" 'dumb-jump-go)
-  (setq-default fill-column 78)
+  (setq-default fill-column 80)
 
   (require 'whitespace)
-  (setq whitespace-line-column 78) ;; limit line length
+  (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face lines-tail))
   (add-hook 'prog-mode-hook 'whitespace-mode)
 
-  (setq linum-format "%4d")
+  ;; (setq-default display-line-numbers-width 4)
+  (setq scroll-preserve-screen-position 'always)
+
+  ;; yacc
+  (require 'bison-mode "~/.emacs.d/private/local/bison-mode.el")
+
+  (defun my-prog-mode()
+    (when (window-system)
+      ;;(load-theme 'atom-one-dark t)
+      ;;(set-frame-font "Palatino-16" t)
+      (fci-mode t)
+      ))
+  (add-hook 'prog-mode-hook 'my-prog-mode)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -389,7 +424,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (color-theme-sanityinc-tomorrow zenburn-theme yasnippet-snippets xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org symon string-inflection spaceline-all-the-icons solarized-theme smeargle shell-pop restart-emacs rainbow-delimiters popwin persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file neotree nameless mwim multi-term move-text moe-theme mmm-mode material-theme markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-cscope helm-company helm-c-yasnippet helm-ag gruvbox-theme google-translate google-c-style golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode disaster diminish define-word counsel-projectile company-statistics company-rtags company-c-headers column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-complete auto-compile aggressive-indent ace-window ace-link ace-jump-helm-line))))
+    (helm-git-grep doom-modeline eldoc-eval shrink-path yasnippet-snippets xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org tagedit symon string-inflection spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode restart-emacs rainbow-delimiters pug-mode prettier-js popwin persp-mode pcre2el password-generator paradox overseer orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file neotree nameless mwim multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum link-hint indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-purpose helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag google-translate google-c-style golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md ggtags fuzzy font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav editorconfig dumb-jump dotenv-mode disaster diminish define-word counsel-projectile company-web company-statistics company-rtags company-c-headers column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode auto-yasnippet auto-highlight-symbol auto-compile atom-one-dark-theme aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

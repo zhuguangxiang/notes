@@ -1,0 +1,12 @@
+Questions
+  1. useful chrome shortcuts
+     - ~ctrl + PageUp/PageDown~ to switch from tabs
+     - ~ctrl + T~ to open new tab
+     - ctrl + L/Alt + D to select web address
+     - ctrl + W to close current tab
+  2. terminal for ubuntu, tmux
+  3. open =spacemacs= with windows mode
+  4. spacemacs line number only for c/c++, and theme only for c/c++
+     See dotspacemacs
+  5. column mode
+     Using Spacemacs(evil-mode), C-v(evil-visual-block) to select a rectangle visually.
